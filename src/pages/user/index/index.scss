@@ -1,0 +1,71 @@
+.page {
+  .info {
+    background-color: white;
+    height: 90PX;
+    margin: 20PX 24PX 20PX;
+    border-radius: 18PX;
+    display: flex;
+
+    .head {
+      margin-top: -7PX;
+      margin-left: -7PX;
+      flex: 0 0 30%;
+      font-size: 54PX;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-info {
+      flex: 0 0 70%;
+
+      .user-info-head {
+        margin: 14PX 0 10PX;
+        display: flex;
+
+        .user-info-head-name {
+          color: #222;
+          margin-right: 12PX;
+          font-size: 19PX;
+          font-weight: bold;
+        }
+      }
+
+      .user-info-phone {
+        font-size: 16PX;
+        color: #a0a0a0;
+      }
+    }
+  }
+
+  .list {
+    width: 88%;
+    margin: 0 auto;
+
+    .items {
+      border-radius: 10PX;
+      margin-bottom: 10PX;
+    }
+  }
+
+  .logout-bottom {
+    width: 88%;
+    bottom: 14PX;
+    color: white;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12PX 0;
+    position: fixed;
+    background: linear-gradient(to right, #ff4b5c, #ff6f61);
+    text-align: center;
+    cursor: pointer;
+    font-size: 18PX;
+    border-radius: 10PX;
+  }
+
+  .logout-button:active {
+    background: linear-gradient(to right, #ff6f61, #ff4b5c);
+  }
+}
+
+

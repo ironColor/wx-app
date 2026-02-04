@@ -1,0 +1,96 @@
+.van-check-list-wrapper {
+  font-size: 28px;
+  display: flex;
+
+
+  .check-list-title {
+    text-align: center;
+    font-size: 30px;
+
+    font-weight: 500;
+    padding: 12px 0;
+    color: #333333;
+    border-bottom: 1px solid #f0e8e8;
+  }
+
+  .van-search__content {
+    background-color: #ffffff;
+  }
+
+  .check-list-body {
+    overflow-y: scroll;
+    padding: 0 18px;
+    position: relative;
+    display: flex;
+  }
+
+  .list_1 {
+    width: 50%;
+    margin-left: 14PX;
+    font-size: 16PX;
+
+    .items {
+      margin-top: 14PX;
+    }
+  }
+
+  .list_2 {
+    border-left: 1PX #c8c9cc dashed;
+    padding-left: 14PX;
+    font-size: 18PX;
+    position: fixed;
+    right: 30%;
+
+    .items {
+      margin-top: 14PX;
+      border-radius: 50%;
+      border: 1PX dashed #c8c9cc;
+      width: 36PX;
+      height: 36PX;
+      line-height: 36PX;
+      text-align: center;
+    }
+  }
+
+  .check-list-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .check-list-cancel-btn {
+    background-color: #f7f7f7;
+  }
+
+  .check-list-loading {
+    display: flex;
+    justify-content: center;
+    margin-top: 20%;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 0;
+  }
+
+  .check-list-empty {
+    display: flex;
+    justify-content: center;
+  }
+
+  .van-icon-clear {
+    color: #c8c9cc;
+  }
+
+  .add-radio {
+    width: 47PX;
+    height: 47PX;
+    border-radius: 50%;
+    border: 1PX #c8c9cc dashed;
+    font-size: 47PX;
+    text-align: center;
+    color: #c8c9cc;
+    font-weight: 300;
+    line-height: 42PX;
+    position: relative;
+  }
+}
