@@ -14,9 +14,9 @@ interface DataItem {
   lon: number;
   lat: number;
   alt: number;
-  type: string;
-  speed: number;
-  relativeAlt: number;
+  type?: string;
+  speed?: number;
+  relativeAlt?: number;
 }
 
 interface landItem {
@@ -279,7 +279,7 @@ const Index = () => {
     });
     setShow(true)
 
-  }, [type, wsData, wsState]);
+  }, [wsData, wsState]);
 
   /**
    * 更新坐标
@@ -528,7 +528,7 @@ const Index = () => {
   }, [points, type, land]);
 
   const submit = useCallback(async () => {
-    let arg = {};
+    let arg: any = {};
     arg = {
       ...formData,
       pointType: dotTypes[formData.pointType],
@@ -608,7 +608,7 @@ const Index = () => {
           pointType: values.pointType
         }))
         setPoints([{ latitude: values.lat, longitude: values.lon, type: values.type }]);
-        setData([{ latitude: values.lat, longitude: values.lon, type: values.type }])
+        setData([{ lon: values.lat, lat: values.lon, alt: values.alt }])
         setShow(false);
       }
     });
