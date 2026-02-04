@@ -2,7 +2,7 @@ import Taro from '@tarojs/taro';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Input, Map, Text, View } from '@tarojs/components';
 import { Dialog, Divider, Form, FormItem, Picker } from '@antmjs/vantui';
-import { dotTypes, dotTypes2 } from '@/pages/home/index/common';
+import {dotTypes, dotTypes2, dotTypes3} from '@/pages/home/index/common';
 import gcoord from 'gcoord';
 import mqtt from '@/utils/mqtt.min.js';
 import { add, detail, edit, list } from './servers';
@@ -92,9 +92,6 @@ const Index = () => {
   const client = useRef<any>(null);
 
   const [show, setShow] = useState(false);
-  const [Lon, setLon] = useState();
-  const [Lat, setLat] = useState();
-
 
   // 表单的数据
   const [formData, setFormData] = useState<any>()
@@ -346,28 +343,33 @@ const Index = () => {
       return;
     }
     console.log('current：', wsData);
-    const [lon, lat] = gcoord.transform([wsData.lon, wsData.lat], gcoord.WGS84, gcoord.GCJ02);
-    setLon(lon);
-    setLat(lat);
-
-    const values: any = await argDialog(true, wsData.alt, lon, lat);
+    // const [lon, lat] = gcoord.transform([wsData.lon, wsData.lat], gcoord.WGS84, gcoord.GCJ02);
+    // const values: any = await argDialog(true, wsData.alt, lon, lat);
     // if (!values && !type) return;
 
+    setFormData({
+      lon: 1,
+      lat: 2,
+      pointType: 10,
+      alt: 12
+    });
+    setShow(true)
 
-    setPoints(prevData => prevData.concat({ latitude: lat, longitude: lon, type: values.type }));
-    console.log(1111111, lon, lat);
-    setData(prevData =>
-      prevData.concat({
-        lon: wsData.lon,
-        lat: wsData.lat,
-        alt: wsData.alt,
-        // type: values.type,
-        // speed: values.speed,
-        // relativeAlt: values.relativeAlt
-      })
-    );
+    // 轨迹点每次只有一个
+    // setPoints([{ latitude: lat, longitude: lon, type: values.type }]);
+    // console.log(1111111, lon, lat);
+    // setData(prevData =>
+    //   prevData.concat({
+    //     lon: wsData.lon,
+    //     lat: wsData.lat,
+    //     alt: wsData.alt,
+    //     // type: values.type,
+    //     // speed: values.speed,
+    //     // relativeAlt: values.relativeAlt
+    //   })
+    // );
 
-    setFormData(values)
+    // setFormData(values)
   }, [type, wsData, wsState]);
 
   /**
@@ -460,7 +462,16 @@ const Index = () => {
                   style={{ width: '120px' }}
                 />
               </FormItem>
-              <Input value={Lon} type='text' maxlength={6} style={{ width: '120px' }} />
+              <FormItem
+                label='经度'
+                name='lon'
+                required
+                trigger='onInput'
+                validateTrigger='onBlur'
+                valueFormat={e => e.detail.value}
+              >
+                <Input type='text' maxlength={6} style={{ width: '120px' }} disabled={type} />
+              </FormItem>
               <FormItem
                 label='维度'
                 name='lat'
@@ -612,22 +623,13 @@ const Index = () => {
     arg = {
       ...formData,
       pointType: dotTypes[formData.pointType],
-      areaId: site.current.id
-    }
-
-    if (!formData.pointName || !formData.alt || !formData.lat || !formData.lon) {
-        Taro.showToast({
-          title: '请输入必填数据',
-          icon: 'none',
-          duration: 2000
-        });
-        return;
+      areaId: site.current?.id
     }
 
     if (params.id) {
       arg.pointId = params.id;
     }
-
+    console.log(formData);
     const res: any = await (params.id ? edit(arg) : add(arg));
 
     if (res.code === 0) {
@@ -646,13 +648,135 @@ const Index = () => {
     }
   }, [data, land, params, type, formData]);
 
+  const handleConfirm = () => {
+    // 调用 form 实例的 validateFields 方法
+    formIt.validateFields((errorMessages, values) => {
+      if (errorMessages && errorMessages.length > 0) {
+          Taro.showToast({
+            title: '请输入必填数据',
+            icon: 'none',
+            duration: 1000
+          });
+      } else {
+        // 验证成功
+        console.log('表单验证通过，提交数据:', values);
+        const lonReg =
+          /^-?(?:180(?:\.0+)?|1[0-7]\d(?:\.\d+)?|\d{1,2}(?:\.\d+)?)$/;
+        if (!lonReg.test(values.lon)) {
+          Taro.showToast({
+            title: '请输入合法经度',
+            icon: 'none',
+            duration: 1000
+          });
+          return;
+        }
+
+        const latReg =
+          /^-?(?:90(?:\.0+)?|[0-8]?\d(?:\.\d+)?)$/;
+        if (!latReg.test(values.lat)) {
+          Taro.showToast({
+            title: '请输入合法纬度',
+            icon: 'none',
+            duration: 1000
+          });
+          return;
+        }
+
+        const altReg =
+          /^(?:0|[1-9]\d*)(?:\.\d+)?$/;
+
+        if (!altReg.test(values.alt)) {
+          Taro.showToast({
+            title: '请输入合法高度',
+            icon: 'none',
+            duration: 1000
+          });
+          return;
+        }
+        setFormData(pre => ({
+          ...pre,
+          pointName: values.pointName,
+          pointType: values.pointType
+        }))
+        setPoints([{ latitude: values.lat, longitude: values.lon, type: values.type }]);
+        setData([{ latitude: values.lat, longitude: values.lon, type: values.type }])
+        setShow(false);
+      }
+    });
+  }
+
   return (
     <View className='page'>
       <DialogIns />
       <Dialog
         show={show}
+        showCancelButton
+        onConfirm={handleConfirm}
+        onClose={() => {
+          setShow(false);
+        }}
       >
-
+        <Form
+          form={formIt}
+          initialValues={formData}
+          className='arg'
+        >
+          <FormItem
+            label='点名称'
+            name='pointName'
+            required
+            trigger='onInput'
+            valueFormat={e => e.detail.value}
+          >
+            <Input style={{ width: '120px' }} />
+          </FormItem>
+          <FormItem
+            label='点类型'
+            name='pointType'
+            trigger='onChange'
+            required
+            valueFormat={e => e.detail.value}
+          >
+            <Picker
+              defaultIndex={0}
+              itemHeight={28}
+              visibleItemCount={2}
+              columns={Object.values(dotTypes3)}
+              style={{ width: '120px' }}
+            />
+          </FormItem>
+          <FormItem
+            label='经度'
+            name='lon'
+            required
+            trigger='onInput'
+            validateTrigger='onBlur'
+            valueFormat={e => e.detail.value}
+          >
+            <Input type='text' style={{ width: '120px' }} disabled={type} />
+          </FormItem>
+          <FormItem
+            label='纬度'
+            name='lat'
+            required
+            trigger='onInput'
+            validateTrigger='onBlur'
+            valueFormat={e => e.detail.value}
+          >
+            <Input type='text' style={{ width: '120px' }} disabled={type} />
+          </FormItem>
+          <FormItem
+            label='高度'
+            name='alt'
+            required
+            trigger='onInput'
+            validateTrigger='onBlur'
+            valueFormat={e => e.detail.value}
+            renderRight='米'
+          >
+            <Input type='digit' style={{ width: '120px' }} disabled={type} />
+          </FormItem>
+        </Form>
 
       </Dialog>
       <View className='map'>

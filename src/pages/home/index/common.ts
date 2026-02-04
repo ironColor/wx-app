@@ -61,6 +61,12 @@ export const dotTypes2: Record<string, string> = {
   10: '起飞点'
 };
 
+export const dotTypes3: Record<string, string> = {
+  7: '挂载点',
+  8: '卸载点',
+  10: '起飞点'
+};
+
 export const dotlist: Record<string, string[]> = {
   投放: ['起飞点', '普通点', '投放点', '挂载点', '卸载点'],
   转移: ['起飞点', '普通点', '投放点', '回收点', '挂载点', '卸载点'],
