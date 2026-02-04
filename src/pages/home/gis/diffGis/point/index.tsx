@@ -5,7 +5,7 @@ import { Dialog, Divider, Form, FormItem, Picker } from '@antmjs/vantui';
 import {dotTypes, dotTypes2, dotTypes3} from '@/pages/home/index/common';
 import gcoord from 'gcoord';
 import mqtt from '@/utils/mqtt.min.js';
-import { add, detail, edit, list } from './servers';
+import { add, detail, edit } from './servers';
 import './index.scss';
 
 const DialogIns = Dialog.createOnlyDialog();
@@ -248,80 +248,6 @@ const Index = () => {
     console.log('用户点击地图坐标:', e.detail.longitude, e.detail.latitude);
   };
 
-  const selectedLand = useCallback(
-    async landList => {
-      console.log('landList', landList);
-      const result = await DialogIns.confirm({
-        title: '请选择地块',
-        message: (
-          <Form form={formIt} className='arg'>
-            {params.title === '转移' && (
-              <FormItem
-                name='oldLandId'
-                layout='vertical'
-                label={<View style={{ fontWeight: 'bold', width: '100px' }}>转移前地块</View>}
-              >
-                <Picker
-                  itemHeight={32}
-                  visibleItemCount={5}
-                  defaultIndex={0}
-                  columns={landList.map(i => ({ id: i.landId, text: i.landName }))}
-                  style={{ width: '120px' }}
-                />
-              </FormItem>
-            )}
-            <FormItem
-              name='landId'
-              layout='vertical'
-              label={
-                params.title === '转移' && (
-                  <View style={{ fontWeight: 'bold', width: '100px' }}>请选择地块</View>
-                )
-              }
-            >
-              <Picker
-                itemHeight={32}
-                visibleItemCount={5}
-                defaultIndex={0}
-                columns={landList.map(i => ({ id: i.landId, text: i.landName }))}
-                style={{ width: '120px' }}
-              />
-            </FormItem>
-          </Form>
-        )
-      });
-      if (result === 'cancel') {
-        Taro.navigateBack();
-      }
-      // 转移任务,获取转移前地块id,默认选中第一个地块
-      const oldLandId =
-        params.title === '转移' &&
-        (formIt.getFieldValue('oldLandId')?.value.id || landList[0].landId);
-      const landId = formIt.getFieldValue('landId')?.value.id || landList[0].landId;
-
-      const getLandPoints = id =>
-        landList
-          .find(i => i.landId === id)
-          ?.landPoints?.map(i => {
-          const [lon, lat] = gcoord.transform([i.lon, i.lat], gcoord.WGS84, gcoord.GCJ02);
-          return { latitude: lat, longitude: lon };
-        });
-
-      setLand({
-        landId: landId,
-        landPoints: getLandPoints(landId),
-        oldLandId: oldLandId,
-        oldLandPoints: getLandPoints(oldLandId)
-      });
-      // 定位当前选中地块位置
-      mapRef.current?.moveToLocation({
-        longitude: getLandPoints(landId)[0].longitude,
-        latitude: getLandPoints(landId)[0].latitude
-      });
-    },
-    [formIt, params.title]
-  );
-
   /**
    * 新增坐标
    */
@@ -343,33 +269,16 @@ const Index = () => {
       return;
     }
     console.log('current：', wsData);
-    // const [lon, lat] = gcoord.transform([wsData.lon, wsData.lat], gcoord.WGS84, gcoord.GCJ02);
-    // const values: any = await argDialog(true, wsData.alt, lon, lat);
-    // if (!values && !type) return;
+    const [lon, lat] = gcoord.transform([wsData.lon, wsData.lat], gcoord.WGS84, gcoord.GCJ02);
 
     setFormData({
-      lon: 1,
-      lat: 2,
+      lon: lon,
+      lat: lat,
       pointType: 10,
-      alt: 12
+      alt: wsData.lat
     });
     setShow(true)
 
-    // 轨迹点每次只有一个
-    // setPoints([{ latitude: lat, longitude: lon, type: values.type }]);
-    // console.log(1111111, lon, lat);
-    // setData(prevData =>
-    //   prevData.concat({
-    //     lon: wsData.lon,
-    //     lat: wsData.lat,
-    //     alt: wsData.alt,
-    //     // type: values.type,
-    //     // speed: values.speed,
-    //     // relativeAlt: values.relativeAlt
-    //   })
-    // );
-
-    // setFormData(values)
   }, [type, wsData, wsState]);
 
   /**
