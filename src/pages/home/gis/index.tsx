@@ -58,6 +58,10 @@ const Index = () => {
   // 所有任务数据（复用功能）
   const [taskData, setTaskData] = useState<any[]>([]);
 
+  const [originPlotId, setOriginPlotId] = useState();
+  const [originArrayId, setArrayId] = useState();
+  const [originStrId, setOriginStrId] = useState();
+
   useEffect(() => {
     getAuth('userLocation', !params.id && initLocation);
 
@@ -118,6 +122,9 @@ const Index = () => {
           params.type === '地块'
             ? r.landPoints
             : r.planInfo.map(i => ({ ...i, type: dotTypes2[i.type] }));
+        setOriginPlotId(r.plotId);
+        setOriginStrId(r.strId);
+        setArrayId(r.arrayId);
         setData(point);
         setLand({
           landId: r.landId,
@@ -667,7 +674,7 @@ const Index = () => {
       return;
     }
     let name = params.name || `${params.title}${params.type}`;
-    let plotId, arrayId, strId;
+    let plotId = originPlotId, arrayId = originArrayId, strId = originStrId;
 
 
     const result = await DialogIns.confirm({
@@ -763,7 +770,6 @@ const Index = () => {
     }
 
     const res: any = await (params.id ? edit(arg) : add(arg));
-
     if (res.code === 0) {
       Taro.navigateBack();
       Taro.showToast({
@@ -778,7 +784,7 @@ const Index = () => {
         duration: 2000
       });
     }
-  }, [data, land, params, type]);
+  }, [data, land.landId, land.oldLandId, originArrayId, originPlotId, originStrId, params.id, params.name, params.title, params.type, type]);
 
   const onChange = (e) => {
     const [lon, lat] = gcoord.transform([e.lon, e.lat], gcoord.WGS84, gcoord.GCJ02);

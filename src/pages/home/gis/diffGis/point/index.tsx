@@ -7,6 +7,7 @@ import gcoord from 'gcoord';
 import mqtt from '@/utils/mqtt.min.js';
 import { add, detail, edit } from './servers';
 import './index.scss';
+import { isNumber } from '@tarojs/shared';
 
 const DialogIns = Dialog.createOnlyDialog();
 
@@ -274,7 +275,7 @@ const Index = () => {
     setFormData({
       lon: lon,
       lat: lat,
-      pointType: 10,
+      pointType: 7,
       alt: wsData.lat
     });
     setShow(true)
@@ -531,14 +532,14 @@ const Index = () => {
     let arg: any = {};
     arg = {
       ...formData,
-      pointType: dotTypes[formData.pointType],
+      pointType: isNumber(formData.pointType) ? formData.pointType : dotTypes[formData.pointType],
       areaId: site.current?.id
     }
 
     if (params.id) {
       arg.pointId = params.id;
     }
-    console.log(formData);
+    console.log(11111, formData);
     const res: any = await (params.id ? edit(arg) : add(arg));
 
     if (res.code === 0) {
