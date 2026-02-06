@@ -103,24 +103,64 @@ const Index = () => {
     setCurrent(res.data.current + 1);
     setData(res.data.records);
     // 重置加载状态,解决下滑获取到所有数据后,再次下拉刷新无法加载更多的问题
-    infiniteScrollInstance.current?.reset()
+    // infiniteScrollInstance.current?.reset()
   };
 
   const dialog = async (type: boolean, arg: any) => {
     let name = '';
+    let plotId = arg.plotId,
+      arrayId = arg.arrayId,
+      strId = arg.strId;
+
+
+
     const result = await DialogIns.confirm({
       title: `${type ? '修改' : '删除'}`,
       message: (
         <>
           {type ? (
-            <Field
-              required
-              clearable
-              border={false}
-              label={`${flag ? '地块名称' : '任务名称'}`}
-              value={name || flag ? arg.landName : arg.taskName}
-              onChange={e => (name = e.detail)}
-            />
+            <>
+              {
+                flag ? <>
+                    <Field
+                      required
+                      clearable
+                      border={false}
+                      label='地块号'
+                      value={plotId}
+                      onChange={e => (plotId = e.detail)}
+                      placeholder='请输入数字'
+                    />
+                    <Field
+                      required
+                      clearable
+                      border={false}
+                      label='矩阵号'
+                      value={arrayId}
+                      onChange={e => (arrayId = e.detail)}
+                      placeholder='请输入数字'
+                    />
+                    <Field
+                      required
+                      clearable
+                      border={false}
+                      label='组串号'
+                      value={strId}
+                      onChange={e => (strId = e.detail)}
+                      placeholder='请输入数字'
+                    />
+                  </> :
+                  <Field
+                    required
+                    clearable
+                    border={false}
+                    label={`${flag ? '地块名称' : '任务名称'}`}
+                    value={name || flag ? arg.landName : arg.taskName}
+                    onChange={e => (name = e.detail)}
+                  />
+              }
+            </>
+
           ) : (
             '确定要删除？'
           )}
@@ -135,7 +175,23 @@ const Index = () => {
       const newData = arg;
       // 删除对象update属性
       delete newData.updateTime;
-      flag ? (newData.landName = name) : (newData.taskName = name);
+      if (flag) {
+        const reg = /^\d+$/;
+        if (!reg.test(plotId) || !reg.test(arrayId) || !reg.test(strId)) {
+          Taro.showToast({
+            title: '请输入数字',
+            icon: 'none',
+            duration: 2000
+          });
+          return;
+        }
+
+        newData.plotId = plotId;
+        newData.arrayId = arrayId;
+        newData.strId = strId;
+      } else {
+        newData.taskName = name
+      }
       res = await edit({ type: flag, ...newData });
     } else {
       res = await del({ type: flag, ids: [flag ? arg.landId : arg.taskId] });
