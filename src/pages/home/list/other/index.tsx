@@ -208,7 +208,7 @@ const Index = () => {
                           url: `/pages/home/gis/diffGis/point/index?type=${params.type}&title=${params.title}&id=${item.pointId}`
                         })}
                       >
-                        重制
+                        修改
                       </Button>
                       <Button
                         type='danger'

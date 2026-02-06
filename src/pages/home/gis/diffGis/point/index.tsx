@@ -156,7 +156,7 @@ const Index = () => {
     // 修改，路由地址id值存在，代表是修改
     params.id &&
     detail({ id: params.id, type: params.type === '地块' }).then(r => {
-      console.log(r, 111);
+      console.log(r, 1111111111);
       setFormData({
         ...r,
         pointType: dotTypes2[r.pointType]
@@ -276,11 +276,12 @@ const Index = () => {
       lon: lon,
       lat: lat,
       pointType: 7,
-      alt: wsData.lat
+      alt: wsData.lat,
+      pointName: formData.pointName
     });
     setShow(true)
 
-  }, [wsData, wsState]);
+  }, [wsData, wsState, formData]);
 
   /**
    * 更新坐标
@@ -539,7 +540,6 @@ const Index = () => {
     if (params.id) {
       arg.pointId = params.id;
     }
-    console.log(11111, formData);
     const res: any = await (params.id ? edit(arg) : add(arg));
 
     if (res.code === 0) {
