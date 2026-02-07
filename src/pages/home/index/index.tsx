@@ -10,37 +10,43 @@ const { images } = COMMON;
 const Index = () => {
   const [site, setSite] = useState<any>();
 
-
   Taro.useDidShow(() => {
     Taro.getStorage({
       key: 'userInfo',
-      fail: () =>
+      success: () => {
+        Taro.getStorage({
+          key: 'site',
+          success: res => {
+            setSite(res.data);
+          },
+          fail: () => {
+            Taro.showModal({
+              title: '请选择场地',
+              content: '是否跳转到场地选择页面？',
+              success: res => {
+                if (res.confirm) {
+                  Taro.navigateTo({
+                    url: '/pages/user/site/index'
+                  });
+                }
+              }
+            });
+          }
+        });
+      },
+      fail: () => {
         Taro.showModal({
           title: '请先登录',
           content: '是否跳转到登录页面？',
-          success: function (res) {
+          success: res => {
             if (res.confirm) {
-              Taro.navigateTo({ url: `/pages/user/login/index` });
+              Taro.navigateTo({
+                url: '/pages/user/login/index'
+              });
             }
           }
-        })
-    });
-  });
-
-  Taro.useDidShow(() => {
-    Taro.getStorage({
-      key: 'site',
-      success: res => setSite(res.data),
-      fail: () =>
-        Taro.showModal({
-          title: '请选择场地',
-          content: '是否跳转到场地选择页面？',
-          success: function (res) {
-            if (res.confirm) {
-              Taro.navigateTo({ url: `/pages/user/site/index` });
-            }
-          }
-        })
+        });
+      }
     });
   });
 

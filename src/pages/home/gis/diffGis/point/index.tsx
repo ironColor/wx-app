@@ -1,5 +1,6 @@
 import Taro from '@tarojs/taro';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isNumber } from '@tarojs/shared';
 import { Image, Input, Map, Text, View } from '@tarojs/components';
 import { Dialog, Divider, Form, FormItem, Picker } from '@antmjs/vantui';
 import {dotTypes, dotTypes2, dotTypes3} from '@/pages/home/index/common';
@@ -7,7 +8,6 @@ import gcoord from 'gcoord';
 import mqtt from '@/utils/mqtt.min.js';
 import { add, detail, edit } from './servers';
 import './index.scss';
-import { isNumber } from '@tarojs/shared';
 
 const DialogIns = Dialog.createOnlyDialog();
 
