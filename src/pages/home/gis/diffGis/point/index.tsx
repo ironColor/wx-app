@@ -160,7 +160,8 @@ const Index = () => {
       setFormData({
         ...r,
         pointType: dotTypes2[r.pointType]
-      })
+      });
+      setShow(true);
     });
 
     return () => close();
@@ -270,13 +271,14 @@ const Index = () => {
       return;
     }
     console.log('current：', wsData);
-    const [lon, lat] = gcoord.transform([wsData.lon, wsData.lat], gcoord.WGS84, gcoord.GCJ02);
+    // const [lon, lat] = gcoord.transform([wsData.lon, wsData.lat], gcoord.WGS84, gcoord.GCJ02);
+    const [lon, lat] = [wsData.lon, wsData.lat];
 
     setFormData({
       lon: lon,
       lat: lat,
       pointType: 7,
-      alt: wsData.lat,
+      alt: wsData.alt,
       pointName: formData.pointName
     });
     setShow(true)
