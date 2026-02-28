@@ -14,6 +14,7 @@ const Index = () => {
     });
   });
 
+
   const logout = () => {
     Taro.navigateTo({ url: '/pages/user/login/index' })
     Taro.clearStorage();
@@ -22,7 +23,9 @@ const Index = () => {
   return (
     <View className='page'>
       <View className='info'>
-        <View className='head'>🥵</View>
+        <View className='head'>
+          👤
+        </View>
         <View className='user-info'>
           <View className='user-info-head'>
             <View className='user-info-head-name'>{info?.nickname}</View>
