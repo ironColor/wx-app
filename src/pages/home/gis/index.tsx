@@ -364,7 +364,7 @@ const Index = () => {
         return prevData.concat({
           lon: wsData.lon,
           lat: wsData.lat,
-          alt: wsData.alt,
+          alt: wsData.high,
           type: values.type,
           speed: values.speed,
           relativeAlt: values.relativeAlt
