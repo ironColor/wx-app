@@ -4,7 +4,6 @@ import { isNumber } from '@tarojs/shared';
 import { Image, Input, Map, Text, View } from '@tarojs/components';
 import { Dialog, Divider, Form, FormItem, Picker } from '@antmjs/vantui';
 import {dotTypes, dotTypes2, dotTypes3} from '@/pages/home/index/common';
-import gcoord from 'gcoord';
 import mqtt from '@/utils/mqtt.min.js';
 import { add, detail, edit } from './servers';
 import './index.scss';
@@ -142,7 +141,10 @@ const Index = () => {
       });
       client.current?.on('message', (_, message, __) => {
         const result = JSON.parse(message.toString());
-        setWsData(result);
+        setWsData({
+          ...result,
+          alt: result.high,
+        });
         console.log(result, 1111);
       });
       // 订阅主题
@@ -278,7 +280,7 @@ const Index = () => {
       lon: lon,
       lat: lat,
       pointType: 7,
-      alt: wsData.alt,
+      alt: wsData.high,
       pointName: formData.pointName
     });
     setShow(true)
