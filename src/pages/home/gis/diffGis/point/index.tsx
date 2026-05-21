@@ -7,6 +7,7 @@ import {dotTypes, dotTypes2, dotTypes3} from '@/pages/home/index/common';
 import mqtt from '@/utils/mqtt.min.js';
 import { add, detail, edit } from './servers';
 import './index.scss';
+import gcoord from 'gcoord';
 
 const DialogIns = Dialog.createOnlyDialog();
 
@@ -164,6 +165,12 @@ const Index = () => {
         pointType: dotTypes2[r.pointType]
       });
       setShow(true);
+      const [lon, lat] = gcoord.transform([r.lon, r.lat], gcoord.WGS84, gcoord.GCJ02);
+      console.log(111222, lon, lat);
+      setPoints(
+        [{ latitude: r.lat, longitude: r.lon, type: r.pointType }]
+      );
+
     });
 
     return () => close();
@@ -273,8 +280,8 @@ const Index = () => {
       return;
     }
     console.log('current：', wsData);
-    // const [lon, lat] = gcoord.transform([wsData.lon, wsData.lat], gcoord.WGS84, gcoord.GCJ02);
-    const [lon, lat] = [wsData.lon, wsData.lat];
+    const [lon, lat] = gcoord.transform([wsData.lon, wsData.lat], gcoord.WGS84, gcoord.GCJ02);
+    // const [lon, lat] = [wsData.lon, wsData.lat];
 
     setFormData({
       lon: lon,
@@ -290,171 +297,171 @@ const Index = () => {
   /**
    * 更新坐标
    */
-  const update = useCallback(() => {
-    // todo
-    if (wsData?.stat !== '5') {
-      Taro.showToast({
-        title: '请等待进入固定解...',
-        icon: 'none',
-        duration: 1000
-      });
-      return;
-    }
-
-    setData(pre => {
-      // 创建一个新的数组，确保不可变性
-      const temp = [...pre];
-      // 浅拷贝当前需要更新的项
-      const current = { ...temp[radio] };
-      current.alt = wsData.alt;
-      current.lon = wsData.lon;
-      current.lat = wsData.lat;
-      // 替换掉 temp 中的对应项
-      temp[radio] = current;
-      console.log('更新后数据：', temp[radio]);
-      return temp;
-    });
-
-    Taro.showToast({
-      title: '更新成功，可重新打开查看',
-      icon: 'none',
-      duration: 2000
-    });
-  }, [radio, wsData]);
+  // const update = useCallback(() => {
+  //   // todo
+  //   if (wsData?.stat !== '5') {
+  //     Taro.showToast({
+  //       title: '请等待进入固定解...',
+  //       icon: 'none',
+  //       duration: 1000
+  //     });
+  //     return;
+  //   }
+  //
+  //   setData(pre => {
+  //     // 创建一个新的数组，确保不可变性
+  //     const temp = [...pre];
+  //     // 浅拷贝当前需要更新的项
+  //     const current = { ...temp[radio] };
+  //     current.alt = wsData.alt;
+  //     current.lon = wsData.lon;
+  //     current.lat = wsData.lat;
+  //     // 替换掉 temp 中的对应项
+  //     temp[radio] = current;
+  //     console.log('更新后数据：', temp[radio]);
+  //     return temp;
+  //   });
+  //
+  //   Taro.showToast({
+  //     title: '更新成功，可重新打开查看',
+  //     icon: 'none',
+  //     duration: 2000
+  //   });
+  // }, [radio, wsData]);
 
   /**
    * 编辑、新增弹窗
    */
-  const argDialog = useCallback(
-    async (isAdd: boolean, args: number, lon, lat) => {
-      // 没有数据，不弹出编辑的弹窗
-      if (!isAdd && args === 0) {
-        return;
-      }
-      console.log('弹窗数据:', data[radio], data);
-      const result = await DialogIns.confirm({
-        title: ``,
-        message: (
-          <>
-            {!isAdd && (
-              <View className='top-info'>
-                经度：{data[radio].lon} 纬度: {data[radio].lat}
-                <Text className='update' onClick={update}>
-                  更新
-                </Text>
-              </View>
-            )}
-            <Form
-              form={formIt}
-              initialValues={
-                {
-                  ...formData,
-                }
-              }
-              className='arg'
-            >
-              <FormItem
-                label='点名称'
-                name='pointName'
-                required
-                trigger='onInput'               // 👈 添加
-                valueFormat={e => e.detail.value} // 👈 添加
-              >
-                <Input style={{ width: '120px' }} />
-              </FormItem>
-              <FormItem
-                label='点类型'
-                name='pointType'
-                trigger='onChange'
-                required
-                valueFormat={e => e.detail.value}
-              >
-                <Picker
-                  defaultIndex={0}
-                  itemHeight={28}
-                  visibleItemCount={2}
-                  columns={Object.values(dotTypes2)}
-                  style={{ width: '120px' }}
-                />
-              </FormItem>
-              <FormItem
-                label='经度'
-                name='lon'
-                required
-                trigger='onInput'
-                validateTrigger='onBlur'
-                valueFormat={e => e.detail.value}
-              >
-                <Input type='text' maxlength={6} style={{ width: '120px' }} disabled={type} />
-              </FormItem>
-              <FormItem
-                label='维度'
-                name='lat'
-                required
-                trigger='onInput'
-                validateTrigger='onBlur'
-                valueFormat={e => e.detail.value}
-              >
-                <Input type='text' maxlength={6} style={{ width: '120px' }} disabled={type} />
-              </FormItem>
-              <FormItem
-                label='高度'
-                name='alt'
-                required
-                trigger='onInput'
-                validateTrigger='onBlur'
-                valueFormat={e => e.detail.value}
-                renderRight='米'
-              >
-                <Input type='digit' maxlength={6} style={{ width: '120px' }} disabled={type} />
-              </FormItem>
-            </Form>
-          </>
-        )
-      });
-      if (result === 'cancel') {
-        return;
-      }
-
-
-      // const { pointName, alt, lat: latValue, lon: lonValue } = formIt.getFieldsValue();
-      //
-      // if (!pointName || !alt || !latValue || !lonValue) {
-      //   Taro.showToast({
-      //     title: '请输入必填数据',
-      //     icon: 'none',
-      //     duration: 2000
-      //   });
-      //   return;
-      // }
-
-      // 编辑
-      if (!isAdd) {
-        const updatedFields = formIt.getFieldsValue();
-        // 删除海拔高度属性，避免更新坐标时，点击确认后，把原来的海拔高度重新赋值给data数据
-        delete updatedFields.alt;
-
-        console.log('编辑后数据：', updatedFields);
-        // 修改后更新data数据
-        setData(prevData => {
-          return prevData.map((item, index) =>
-            index === args ? { ...item, ...updatedFields } : item
-          );
-        });
-
-        // 修改后更新地图上marker点
-        setPoints(pre => {
-          const newData = [...pre];
-          newData[radio].type = formIt.getFieldsValue().type;
-
-          return newData;
-        });
-        return;
-      }
-      return formIt.getFieldsValue();
-    },
-    [data, formData, formIt, radio, type, update]
-  );
+  // const argDialog = useCallback(
+  //   async (isAdd: boolean, args: number, lon, lat) => {
+  //     // 没有数据，不弹出编辑的弹窗
+  //     if (!isAdd && args === 0) {
+  //       return;
+  //     }
+  //     console.log('弹窗数据:', data[radio], data);
+  //     const result = await DialogIns.confirm({
+  //       title: ``,
+  //       message: (
+  //         <>
+  //           {!isAdd && (
+  //             <View className='top-info'>
+  //               经度：{data[radio].lon} 纬度: {data[radio].lat}
+  //               <Text className='update' onClick={update}>
+  //                 更新
+  //               </Text>
+  //             </View>
+  //           )}
+  //           <Form
+  //             form={formIt}
+  //             initialValues={
+  //               {
+  //                 ...formData,
+  //               }
+  //             }
+  //             className='arg'
+  //           >
+  //             <FormItem
+  //               label='点名称'
+  //               name='pointName'
+  //               required
+  //               trigger='onInput'               // 👈 添加
+  //               valueFormat={e => e.detail.value} // 👈 添加
+  //             >
+  //               <Input style={{ width: '120px' }} />
+  //             </FormItem>
+  //             <FormItem
+  //               label='点类型'
+  //               name='pointType'
+  //               trigger='onChange'
+  //               required
+  //               valueFormat={e => e.detail.value}
+  //             >
+  //               <Picker
+  //                 defaultIndex={0}
+  //                 itemHeight={28}
+  //                 visibleItemCount={2}
+  //                 columns={Object.values(dotTypes2)}
+  //                 style={{ width: '120px' }}
+  //               />
+  //             </FormItem>
+  //             <FormItem
+  //               label='经度'
+  //               name='lon'
+  //               required
+  //               trigger='onInput'
+  //               validateTrigger='onBlur'
+  //               valueFormat={e => e.detail.value}
+  //             >
+  //               <Input type='text' maxlength={6} style={{ width: '120px' }} disabled={type} />
+  //             </FormItem>
+  //             <FormItem
+  //               label='维度'
+  //               name='lat'
+  //               required
+  //               trigger='onInput'
+  //               validateTrigger='onBlur'
+  //               valueFormat={e => e.detail.value}
+  //             >
+  //               <Input type='text' maxlength={6} style={{ width: '120px' }} disabled={type} />
+  //             </FormItem>
+  //             <FormItem
+  //               label='高度'
+  //               name='alt'
+  //               required
+  //               trigger='onInput'
+  //               validateTrigger='onBlur'
+  //               valueFormat={e => e.detail.value}
+  //               renderRight='米'
+  //             >
+  //               <Input type='digit' maxlength={6} style={{ width: '120px' }} disabled={type} />
+  //             </FormItem>
+  //           </Form>
+  //         </>
+  //       )
+  //     });
+  //     if (result === 'cancel') {
+  //       return;
+  //     }
+  //
+  //
+  //     // const { pointName, alt, lat: latValue, lon: lonValue } = formIt.getFieldsValue();
+  //     //
+  //     // if (!pointName || !alt || !latValue || !lonValue) {
+  //     //   Taro.showToast({
+  //     //     title: '请输入必填数据',
+  //     //     icon: 'none',
+  //     //     duration: 2000
+  //     //   });
+  //     //   return;
+  //     // }
+  //
+  //     // 编辑
+  //     if (!isAdd) {
+  //       const updatedFields = formIt.getFieldsValue();
+  //       // 删除海拔高度属性，避免更新坐标时，点击确认后，把原来的海拔高度重新赋值给data数据
+  //       delete updatedFields.alt;
+  //
+  //       console.log('编辑后数据：', updatedFields);
+  //       // 修改后更新data数据
+  //       setData(prevData => {
+  //         return prevData.map((item, index) =>
+  //           index === args ? { ...item, ...updatedFields } : item
+  //         );
+  //       });
+  //
+  //       // 修改后更新地图上marker点
+  //       setPoints(pre => {
+  //         const newData = [...pre];
+  //         newData[radio].type = formIt.getFieldsValue().type;
+  //
+  //         return newData;
+  //       });
+  //       return;
+  //     }
+  //     return formIt.getFieldsValue();
+  //   },
+  //   [data, formData, formIt, radio, type, update]
+  // );
 
 
   const markers = useMemo(() => {
@@ -472,7 +479,7 @@ const Index = () => {
         height: 10,
         callout: {
           content: i.type,
-          color: '#222222',
+          color: 'red',
           fontSize: 14,
           borderRadius: 5,
           borderWidth: 0,
@@ -618,7 +625,7 @@ const Index = () => {
       }
     });
   }
-
+  console.log(1111222221111, markers, polyline);
   return (
     <View className='page'>
       <DialogIns />
