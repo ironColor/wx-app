@@ -391,7 +391,7 @@ const Index = () => {
       const temp = [...pre];
       // 浅拷贝当前需要更新的项
       const current = { ...temp[radio] };
-      current.alt = wsData.alt;
+      current.alt = wsData.high;
       current.lon = wsData.lon;
       current.lat = wsData.lat;
       // 替换掉 temp 中的对应项
