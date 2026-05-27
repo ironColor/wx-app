@@ -2,15 +2,31 @@ import Taro from '@tarojs/taro';
 import { useState } from 'react';
 import { View } from '@tarojs/components';
 import { Swiper, SwiperItem, Image, Row, Col } from '@antmjs/vantui';
+import { isAdmin } from '@/utils/util.js';
 import './index.scss';
 import * as COMMON from './common';
 import { layout } from './layout';
 
+
 const { images } = COMMON;
 const Index = () => {
   const [site, setSite] = useState<any>();
+  const [filteredLayout, setFilteredLayout] = useState(layout);
 
   Taro.useDidShow(() => {
+    const isAdminUser = isAdmin();
+
+    if (!isAdminUser) {
+      setFilteredLayout([
+        {
+          title: '其他',
+          type: [{ title: '轨迹点' }]
+        }
+      ]);
+    } else {
+      setFilteredLayout(layout);
+    }
+
     Taro.getStorage({
       key: 'userInfo',
       success: () => {
@@ -79,7 +95,7 @@ const Index = () => {
         </Swiper>
       </View>
       <View style={{ width: '100%' }}>
-        {layout.map(item => (
+        {filteredLayout.map(item => (
           <>
             <View style={{ margin: '24px 24px 0px', fontSize: '14px', color: '#ccc' }}>
               {item.title}

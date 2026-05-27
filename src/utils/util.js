@@ -311,3 +311,48 @@ export const getAuth = (authorize, callback) => {
     fail: () => back()
   });
 };
+
+/**
+ * 检查用户是否为管理员
+ */
+export const isAdmin = () => {
+  try {
+    const userInfo = Taro.getStorageSync('userInfo');
+    return userInfo?.username === 'admin';
+  } catch (error) {
+    return false;
+  }
+};
+
+/**
+ * 检查页面访问权限
+ * @param {string} currentPath 当前页面路径
+ * @param {Array} allowedPages 允许访问的页面路径数组
+ */
+export const checkPagePermission = (currentPath, allowedPages = []) => {
+  const userInfo = Taro.getStorageSync('userInfo');
+
+  if (!userInfo) {
+    return false;
+  }
+
+  if (userInfo.username === 'admin') {
+    return true;
+  }
+
+  return allowedPages.some(page => currentPath.includes(page));
+};
+
+/**
+ * 轨迹点页面路径（非管理员只能访问的页面）
+ */
+export const TRACK_POINT_PAGE = 'pages/home/gis/diffGis/point/index';
+
+/**
+ * 检查并重定向到轨迹点页面
+ */
+export const redirectToTrackPoint = () => {
+  Taro.reLaunch({
+    url: `/${TRACK_POINT_PAGE}`
+  });
+};
