@@ -318,7 +318,7 @@ export const getAuth = (authorize, callback) => {
 export const isAdmin = () => {
   try {
     const userInfo = Taro.getStorageSync('userInfo');
-    return userInfo?.username === 'admin';
+    return userInfo?.roleCodes.includes('admin');
   } catch (error) {
     return false;
   }

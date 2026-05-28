@@ -14,9 +14,13 @@ export async function login(params) {
       'refresh_token',
       `${response.data.token_type} ${response.data.refresh_token}`
     );
+    const info = await request.get('/ppc/common/user/info', { token: response.data.access_token });
+
     Taro.setStorageSync('userInfo', {
       nickname: response.data.name,
-      username: response.data.username
+      username: response.data.username,
+      roleCodes: info.data.roleCodes,
+      roles: info.data.roles,
     });
     Taro.reLaunch({ url: '/pages/home/index/index' });
   } else {
