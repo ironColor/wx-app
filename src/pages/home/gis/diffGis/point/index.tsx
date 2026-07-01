@@ -279,13 +279,13 @@ const Index = () => {
       });
       return;
     }
-    console.log('current：', wsData);
+
     const [lon, lat] = gcoord.transform([wsData.lon, wsData.lat], gcoord.WGS84, gcoord.GCJ02);
     // const [lon, lat] = [wsData.lon, wsData.lat];
-
+    console.log('current1111：', wsData, lon, lat);
     setFormData({
-      lon: lon,
-      lat: lat,
+      lon: wsData.lon,
+      lat: wsData.lat,
       pointType: 7,
       alt: wsData.high,
       pointName: formData.pointName
@@ -625,7 +625,7 @@ const Index = () => {
       }
     });
   }
-  console.log(1111222221111, markers, polyline);
+
   return (
     <View className='page'>
       <DialogIns />
